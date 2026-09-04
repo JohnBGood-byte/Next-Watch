@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Next Watch</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- =========================
+         HEADER
+         ========================= -->
+
+    <header class="site-header">
+
+        <div class="brand">
+            <span class="brand-icon">▶</span>
+            <h1>Next Watch</h1>
+        </div>
+
+        <p class="tagline">
+            Find your next favourite movie.
+        </p>
+
+    </header>
+
+
+
+    <!-- =========================
+         COMPARE
+         ========================= -->
+
+    <section class="compare-section">
+
+        <div class="section-heading">
+
+            <span class="eyebrow">CAN'T DECIDE?</span>
+
+            <h2>Which movie should you watch?</h2>
+
+            <p>
+                Put two movies head-to-head and let Next Watch help you decide.
+            </p>
+
+        </div>
+
+
+        <div class="comparison-section">
+
+            <div class="movie-input">
+
+                <label for="movie1">First movie</label>
+
+                <input
+                    type="text"
+                    id="movie1"
+                    placeholder="Enter a movie"
+                >
+
+            </div>
+
+
+            <div class="vs">VS</div>
+
+
+            <div class="movie-input">
+
+                <label for="movie2">Second movie</label>
+
+                <input
+                    type="text"
+                    id="movie2"
+                    placeholder="Enter a movie"
+                >
+
+            </div>
+
+
+            <button
+                id="searchBtn"
+                class="compare-btn"
+            >
+                Compare Movies
+                <span>→</span>
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         DISCOVER
+         ========================= -->
+
+    <section class="discovery-section">
+
+        <div class="section-heading">
+
+            <span class="eyebrow">DISCOVER</span>
+
+            <h2>Find something to watch</h2>
+
+            <p>
+                Not sure what you're looking for? Let us do the searching.
+            </p>
+
+        </div>
+
+
+        <div class="main-discovery-buttons">
+
+
+            <button
+                id="randomMovieBtn"
+                class="discovery-card"
+            >
+
+                <span class="card-icon">✦</span>
+
+                <span class="card-content">
+
+                    <strong>Surprise Me</strong>
+
+                    <small>
+                        Give me something unexpected.
+                    </small>
+
+                </span>
+
+                <span class="card-arrow">→</span>
+
+            </button>
+
+
+            <button
+                id="hiddenGemBtn"
+                class="discovery-card"
+            >
+
+                <span class="card-icon">✧</span>
+
+                <span class="card-content">
+
+                    <strong>Hidden Gems</strong>
+
+                    <small>
+                        Discover something overlooked.
+                    </small>
+
+                </span>
+
+                <span class="card-arrow">→</span>
+
+            </button>
+
+
+            <button
+                id="randomBattleBtn"
+                class="discovery-card"
+            >
+
+                <span class="card-icon">VS</span>
+
+                <span class="card-content">
+
+                    <strong>Watch-Off</strong>
+
+                    <small>
+                        Two movies enter. One wins.
+                    </small>
+
+                </span>
+
+                <span class="card-arrow">→</span>
+
+            </button>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         STREAMING FILTER
+         ========================= -->
+
+    <div class="streaming-filter">
+
+        <button
+            type="button"
+            id="streamingDropdownButton"
+            class="streaming-dropdown-button"
+        >
+            <span>Where can I watch?</span>
+            <span class="dropdown-arrow">⌄</span>
+        </button>
+
+
+        <div
+            id="streamingDropdownMenu"
+            class="streaming-dropdown-menu"
+        >
+
+            <div class="streaming-dropdown-title">
+                Filter by streaming platform
+            </div>
+
+
+            <label class="platform-option">
+
+                <input
+                    type="checkbox"
+                    value="Netflix"
+                    class="platform-checkbox"
+                >
+
+                <span>Netflix</span>
+
+            </label>
+
+
+            <label class="platform-option">
+
+                <input
+                    type="checkbox"
+                    value="Binge"
+                    class="platform-checkbox"
+                >
+
+                <span>Binge</span>
+
+            </label>
+
+
+            <label class="platform-option">
+
+                <input
+                    type="checkbox"
+                    value="Disney+"
+                    class="platform-checkbox"
+                >
+
+                <span>Disney+</span>
+
+            </label>
+
+
+            <label class="platform-option">
+
+                <input
+                    type="checkbox"
+                    value="Prime Video"
+                    class="platform-checkbox"
+                >
+
+                <span>Prime Video</span>
+
+            </label>
+
+
+            <label class="platform-option">
+
+                <input
+                    type="checkbox"
+                    value="Stan"
+                    class="platform-checkbox"
+                >
+
+                <span>Stan</span>
+
+            </label>
+
+
+            <label class="platform-option">
+
+                <input
+                    type="checkbox"
+                    value="Apple TV+"
+                    class="platform-checkbox"
+                >
+
+                <span>Apple TV+</span>
+
+            </label>
+
+
+            <label class="platform-option">
+
+                <input
+                    type="checkbox"
+                    value="HBO Max"
+                    class="platform-checkbox"
+                >
+
+                <span>HBO Max</span>
+
+            </label>
+
+
+            <label class="platform-option">
+
+                <input
+                    type="checkbox"
+                    value="Foxtel Now"
+                    class="platform-checkbox"
+                >
+
+                <span>Foxtel Now</span>
+
+            </label>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         BROWSE
+         ========================= -->
+
+    <section class="browse-section">
+
+
+        <!-- GENRE -->
+
+        <div class="browse-card">
+
+            <div class="browse-card-heading">
+
+                <span class="browse-icon">◈</span>
+
+                <div>
+
+                    <span class="eyebrow">EXPLORE</span>
+
+                    <h2>Discover by Genre</h2>
+
+                </div>
+
+            </div>
+
+
+            <p>
+                Choose a genre and we'll find a movie for you.
+            </p>
+
+
+            <div class="browse-controls">
+
+                <select id="genreSelect">
+
+                    <option value="">
+                        Choose a genre
+                    </option>
+
+                    <option value="27">
+                        Horror
+                    </option>
+
+                    <option value="35">
+                        Comedy
+                    </option>
+
+                    <option value="878">
+                        Sci-Fi
+                    </option>
+
+                    <option value="28">
+                        Action
+                    </option>
+
+                    <option value="10749">
+                        Romance
+                    </option>
+
+                    <option value="18">
+                        Drama
+                    </option>
+
+                </select>
+
+
+                <button id="genreDiscoverBtn">
+                    Find a Movie
+                    <span>→</span>
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- TOP MOVIES -->
+
+        <div class="browse-card">
+
+            <div class="browse-card-heading">
+
+                <span class="browse-icon">★</span>
+
+                <div>
+
+                    <span class="eyebrow">RANKINGS</span>
+
+                    <h2>Top Movies by Genre</h2>
+
+                </div>
+
+            </div>
+
+
+            <p>
+                See the highest-rated movies in a genre.
+            </p>
+
+
+            <div class="browse-controls">
+
+                <select id="topGenreSelect">
+
+                    <option value="">
+                        Choose a genre
+                    </option>
+
+                    <option value="28">
+                        Action
+                    </option>
+
+                    <option value="12">
+                        Adventure
+                    </option>
+
+                    <option value="16">
+                        Animation
+                    </option>
+
+                    <option value="35">
+                        Comedy
+                    </option>
+
+                    <option value="80">
+                        Crime
+                    </option>
+
+                    <option value="18">
+                        Drama
+                    </option>
+
+                    <option value="27">
+                        Horror
+                    </option>
+
+                    <option value="878">
+                        Sci-Fi
+                    </option>
+
+                    <option value="53">
+                        Thriller
+                    </option>
+
+                    <option value="10749">
+                        Romance
+                    </option>
+
+                </select>
+
+
+                <button id="topMoviesBtn">
+                    Show Top 10
+                    <span>→</span>
+                </button>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =========================
+         RESULTS
+         ========================= -->
+
+    <div id="topMovieList"></div>
+
+
+    <p id="status"></p>
+
+
+    <div id="result"></div>
+
+
+</div>
+
+
+
+<script src="script.js"></script>
+
+
+</body>
+
+</html>
