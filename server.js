@@ -4,7 +4,7 @@ require("dotenv").config({ path: ".env.local" });
 const { tmdbFetch } = require("./API/tmdb");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 
 // Serve the website
