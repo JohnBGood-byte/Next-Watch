@@ -9,7 +9,6 @@
 // =========================
 
 const searchBtn = document.getElementById("searchBtn");
-
 const randomBattleBtn = document.getElementById("randomBattleBtn");
 const randomMovieBtn = document.getElementById("randomMovieBtn");
 
@@ -54,7 +53,9 @@ async function tmdbFetch(endpoint) {
 // =========================
 
 function setStatus(message = "") {
+
     status.textContent = message;
+
 }
 
 
@@ -67,6 +68,7 @@ function getSelectedPlatforms() {
     return Array.from(platformCheckboxes)
         .filter(checkbox => checkbox.checked)
         .map(checkbox => checkbox.value);
+
 }
 
 
@@ -87,32 +89,36 @@ document.addEventListener("click", function (event) {
         !streamingDropdownMenu.contains(event.target) &&
         !streamingDropdownButton.contains(event.target)
     ) {
+
         streamingDropdownMenu.classList.remove("show");
+
     }
 
 });
 
 
 // Update button when platforms are selected
+
 platformCheckboxes.forEach(checkbox => {
 
     checkbox.addEventListener("change", function () {
 
         const selectedPlatforms = getSelectedPlatforms();
 
+        const buttonText =
+            streamingDropdownButton.querySelector("span");
+
         if (selectedPlatforms.length === 0) {
 
-            streamingDropdownButton.querySelector("span").textContent =
-                "Platforms";
+            buttonText.textContent = "Platforms";
 
         } else if (selectedPlatforms.length === 1) {
 
-            streamingDropdownButton.querySelector("span").textContent =
-                selectedPlatforms[0];
+            buttonText.textContent = selectedPlatforms[0];
 
         } else {
 
-            streamingDropdownButton.querySelector("span").textContent =
+            buttonText.textContent =
                 `${selectedPlatforms.length} Platforms`;
 
         }
@@ -189,8 +195,13 @@ async function getStreamingProviders(movieId) {
                 seen.add(provider.provider_id);
 
                 uniqueProviders.push({
+
                     id: provider.provider_id,
-                    name: normalisePlatformName(provider.provider_name)
+
+                    name: normalisePlatformName(
+                        provider.provider_name
+                    )
+
                 });
 
             }
@@ -201,7 +212,10 @@ async function getStreamingProviders(movieId) {
 
     } catch (error) {
 
-        console.error("Streaming provider error:", error);
+        console.error(
+            "Streaming provider error:",
+            error
+        );
 
         return [];
 
@@ -216,20 +230,25 @@ async function getStreamingProviders(movieId) {
 
 async function movieMatchesStreamingFilter(movieId) {
 
-    const selectedPlatforms = getSelectedPlatforms();
+    const selectedPlatforms =
+        getSelectedPlatforms();
 
     if (selectedPlatforms.length === 0) {
         return true;
     }
 
-    const providers = await getStreamingProviders(movieId);
+    const providers =
+        await getStreamingProviders(movieId);
 
-    const providerNames = providers.map(provider =>
-        normalisePlatformName(provider.name)
-    );
+    const providerNames =
+        providers.map(provider =>
+            normalisePlatformName(provider.name)
+        );
 
     return selectedPlatforms.some(platform =>
-        providerNames.includes(normalisePlatformName(platform))
+        providerNames.includes(
+            normalisePlatformName(platform)
+        )
     );
 
 }
@@ -245,8 +264,13 @@ async function searchMovie(title) {
         `/search/movie?query=${encodeURIComponent(title)}`
     );
 
-    if (!data.results || data.results.length === 0) {
+    if (
+        !data.results ||
+        data.results.length === 0
+    ) {
+
         return null;
+
     }
 
     const movie = data.results[0];
@@ -264,20 +288,23 @@ async function searchMovie(title) {
 // FIND RANDOM MOVIE
 // =========================
 
-// =========================
-// FIND RANDOM MOVIE
-// =========================
-
 async function getRandomMovie(options = {}) {
 
     const genre = options.genre || "";
-    const selectedPlatforms = getSelectedPlatforms();
 
-    // Try several different TMDB pages so we have a good
-    // chance of finding a suitable movie.
-    for (let attempt = 0; attempt < 8; attempt++) {
+    const selectedPlatforms =
+        getSelectedPlatforms();
 
-        const randomPage = Math.floor(Math.random() * 20) + 1;
+    // Try several different TMDB pages
+
+    for (
+        let attempt = 0;
+        attempt < 8;
+        attempt++
+    ) {
+
+        const randomPage =
+            Math.floor(Math.random() * 20) + 1;
 
         let endpoint =
             `/discover/movie?include_adult=false&language=en-US&page=${randomPage}&sort_by=popularity.desc`;
@@ -289,7 +316,8 @@ async function getRandomMovie(options = {}) {
 
         if (genre) {
 
-            endpoint += `&with_genres=${genre}`;
+            endpoint +=
+                `&with_genres=${genre}`;
 
         }
 
@@ -300,10 +328,13 @@ async function getRandomMovie(options = {}) {
 
         if (selectedPlatforms.length > 0) {
 
-            const providerIds = selectedPlatforms
-                .map(platform => platformProviderIds[platform])
-                .filter(Boolean);
-
+            const providerIds =
+                selectedPlatforms
+                    .map(
+                        platform =>
+                            platformProviderIds[platform]
+                    )
+                    .filter(Boolean);
 
             if (providerIds.length > 0) {
 
@@ -319,21 +350,27 @@ async function getRandomMovie(options = {}) {
         // GET MOVIES FROM TMDB
         // -------------------------
 
-        const data = await tmdbFetch(endpoint);
+        const data =
+            await tmdbFetch(endpoint);
 
-
-        if (!data.results || data.results.length === 0) {
+        if (
+            !data.results ||
+            data.results.length === 0
+        ) {
 
             continue;
 
         }
 
 
-        // Randomise the movies returned by TMDB
+        // Randomise movies returned by TMDB
 
-        const movies = [...data.results];
+        const movies =
+            [...data.results];
 
-        movies.sort(() => Math.random() - 0.5);
+        movies.sort(
+            () => Math.random() - 0.5
+        );
 
 
         // -------------------------
@@ -342,9 +379,10 @@ async function getRandomMovie(options = {}) {
 
         for (const movie of movies) {
 
-            const details = await tmdbFetch(
-                `/movie/${movie.id}?append_to_response=credits`
-            );
+            const details =
+                await tmdbFetch(
+                    `/movie/${movie.id}?append_to_response=credits`
+                );
 
 
             // -------------------------
@@ -356,14 +394,12 @@ async function getRandomMovie(options = {}) {
                 const movieHasGenre =
                     details.genres?.some(
                         movieGenre =>
-                            String(movieGenre.id) === String(genre)
+                            String(movieGenre.id) ===
+                            String(genre)
                     );
 
-
                 if (!movieHasGenre) {
-
                     continue;
-
                 }
 
             }
@@ -373,16 +409,17 @@ async function getRandomMovie(options = {}) {
             // CONFIRM PLATFORM
             // -------------------------
 
-            if (selectedPlatforms.length > 0) {
+            if (
+                selectedPlatforms.length > 0
+            ) {
 
                 const matchesPlatform =
-                    await movieMatchesStreamingFilter(movie.id);
-
+                    await movieMatchesStreamingFilter(
+                        movie.id
+                    );
 
                 if (!matchesPlatform) {
-
                     continue;
-
                 }
 
             }
@@ -412,46 +449,62 @@ async function getRandomMovie(options = {}) {
 
 function createStreamingSection(providers) {
 
-    const section = document.createElement("div");
+    const section =
+        document.createElement("div");
 
-    section.className = "streaming-section";
+    section.className =
+        "streaming-section";
 
-    const heading = document.createElement("strong");
+    const heading =
+        document.createElement("strong");
 
-    heading.textContent = "📺 Streaming in Australia";
+    heading.textContent =
+        "📺 Streaming in Australia";
 
     section.appendChild(heading);
 
 
-    const providerList = document.createElement("div");
+    const providerList =
+        document.createElement("div");
 
-    providerList.className = "streaming-providers";
+    providerList.className =
+        "streaming-providers";
 
 
     if (providers.length === 0) {
 
-        const unavailable = document.createElement("span");
+        const unavailable =
+            document.createElement("span");
 
-        unavailable.textContent = "Not currently available";
+        unavailable.textContent =
+            "Not currently available";
 
-        providerList.appendChild(unavailable);
+        providerList.appendChild(
+            unavailable
+        );
 
     } else {
 
         providers.forEach(provider => {
 
-            const providerSpan = document.createElement("span");
+            const providerSpan =
+                document.createElement("span");
 
-            providerSpan.textContent = provider.name;
+            providerSpan.textContent =
+                provider.name;
 
-            providerList.appendChild(providerSpan);
+            providerList.appendChild(
+                providerSpan
+            );
 
         });
 
     }
 
 
-    section.appendChild(providerList);
+    section.appendChild(
+        providerList
+    );
 
     return section;
 
@@ -467,8 +520,10 @@ function getRatingInfo(rating) {
     if (rating >= 8) {
 
         return {
+
             className: "excellent",
             text: "🔥 Banger!"
+
         };
 
     }
@@ -476,15 +531,19 @@ function getRatingInfo(rating) {
     if (rating >= 6) {
 
         return {
+
             className: "good",
             text: "👍 Solid Watch"
+
         };
 
     }
 
     return {
+
         className: "low",
         text: "🗑️ Dumpster Fire?"
+
     };
 
 }
@@ -494,37 +553,50 @@ function getRatingInfo(rating) {
 // CREATE MOVIE CARD
 // =========================
 
-async function createMovieCard(movie, options = {}) {
+async function createMovieCard(
+    movie,
+    options = {}
+) {
 
-    const card = document.createElement("div");
+    const card =
+        document.createElement("div");
 
-    card.className = "movie-card";
+    card.className =
+        "movie-card";
+
 
     if (options.winner) {
+
         card.classList.add("winner");
+
     }
 
 
     // -------------------------
-    // Title
+    // TITLE
     // -------------------------
 
-    const title = document.createElement("h3");
+    const title =
+        document.createElement("h3");
 
-    title.textContent = movie.title || "Untitled";
+    title.textContent =
+        movie.title || "Untitled";
 
     card.appendChild(title);
 
 
     // -------------------------
-    // Rating
+    // RATING
     // -------------------------
 
-    const rating = Number(movie.vote_average || 0);
+    const rating =
+        Number(movie.vote_average || 0);
 
-    const ratingInfo = getRatingInfo(rating);
+    const ratingInfo =
+        getRatingInfo(rating);
 
-    const ratingBadge = document.createElement("div");
+    const ratingBadge =
+        document.createElement("div");
 
     ratingBadge.className =
         `rating-badge ${ratingInfo.className}`;
@@ -536,14 +608,16 @@ async function createMovieCard(movie, options = {}) {
 
 
     // -------------------------
-    // Poster
+    // POSTER
     // -------------------------
 
     if (movie.poster_path) {
 
-        const poster = document.createElement("img");
+        const poster =
+            document.createElement("img");
 
-        poster.className = "movie-poster";
+        poster.className =
+            "movie-poster";
 
         poster.src =
             `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
@@ -557,14 +631,16 @@ async function createMovieCard(movie, options = {}) {
 
 
     // -------------------------
-    // Year
+    // YEAR
     // -------------------------
 
     if (movie.release_date) {
 
-        const year = document.createElement("p");
+        const year =
+            document.createElement("p");
 
-        year.className = "movie-year";
+        year.className =
+            "movie-year";
 
         year.textContent =
             movie.release_date.substring(0, 4);
@@ -575,17 +651,24 @@ async function createMovieCard(movie, options = {}) {
 
 
     // -------------------------
-    // Genres
+    // GENRES
     // -------------------------
 
-    if (movie.genres && movie.genres.length > 0) {
+    if (
+        movie.genres &&
+        movie.genres.length > 0
+    ) {
 
-        const genres = document.createElement("p");
+        const genres =
+            document.createElement("p");
 
-        genres.className = "movie-genres";
+        genres.className =
+            "movie-genres";
 
         genres.textContent =
-            movie.genres.map(genre => genre.name).join(" · ");
+            movie.genres
+                .map(genre => genre.name)
+                .join(" · ");
 
         card.appendChild(genres);
 
@@ -593,14 +676,16 @@ async function createMovieCard(movie, options = {}) {
 
 
     // -------------------------
-    // Runtime
+    // RUNTIME
     // -------------------------
 
     if (movie.runtime) {
 
-        const runtime = document.createElement("p");
+        const runtime =
+            document.createElement("p");
 
-        runtime.className = "movie-runtime";
+        runtime.className =
+            "movie-runtime";
 
         runtime.textContent =
             `${movie.runtime} min`;
@@ -611,25 +696,31 @@ async function createMovieCard(movie, options = {}) {
 
 
     // -------------------------
-    // Director
+    // DIRECTOR
     // -------------------------
 
     if (movie.credits?.crew) {
 
-        const director = movie.credits.crew.find(
-            person => person.job === "Director"
-        );
+        const director =
+            movie.credits.crew.find(
+                person =>
+                    person.job === "Director"
+            );
 
         if (director) {
 
-            const directorElement = document.createElement("p");
+            const directorElement =
+                document.createElement("p");
 
-            directorElement.className = "movie-director";
+            directorElement.className =
+                "movie-director";
 
             directorElement.textContent =
                 `Director: ${director.name}`;
 
-            card.appendChild(directorElement);
+            card.appendChild(
+                directorElement
+            );
 
         }
 
@@ -637,19 +728,25 @@ async function createMovieCard(movie, options = {}) {
 
 
     // -------------------------
-    // Cast
+    // CAST
     // -------------------------
 
-    if (movie.credits?.cast && movie.credits.cast.length > 0) {
+    if (
+        movie.credits?.cast &&
+        movie.credits.cast.length > 0
+    ) {
 
-        const cast = document.createElement("p");
+        const cast =
+            document.createElement("p");
 
-        cast.className = "movie-cast";
+        cast.className =
+            "movie-cast";
 
-        const castNames = movie.credits.cast
-            .slice(0, 4)
-            .map(actor => actor.name)
-            .join(", ");
+        const castNames =
+            movie.credits.cast
+                .slice(0, 4)
+                .map(actor => actor.name)
+                .join(", ");
 
         cast.textContent =
             `Cast: ${castNames}`;
@@ -660,26 +757,32 @@ async function createMovieCard(movie, options = {}) {
 
 
     // -------------------------
-    // Streaming
+    // STREAMING
     // -------------------------
 
     const providers =
-        await getStreamingProviders(movie.id);
+        await getStreamingProviders(
+            movie.id
+        );
 
     card.appendChild(
-        createStreamingSection(providers)
+        createStreamingSection(
+            providers
+        )
     );
 
 
     // -------------------------
-    // Plot
+    // PLOT
     // -------------------------
 
     if (movie.overview) {
 
-        const plot = document.createElement("p");
+        const plot =
+            document.createElement("p");
 
-        plot.className = "movie-plot";
+        plot.className =
+            "movie-plot";
 
         plot.textContent =
             movie.overview;
@@ -698,22 +801,31 @@ async function createMovieCard(movie, options = {}) {
 // DISPLAY SINGLE MOVIE
 // =========================
 
-async function displaySingleMovie(movie, label = "") {
+async function displaySingleMovie(
+    movie,
+    label = ""
+) {
 
     result.innerHTML = "";
 
-    const container = document.createElement("div");
+    const container =
+        document.createElement("div");
 
-    container.className = "movie-container";
+    container.className =
+        "movie-container";
 
 
     if (label) {
 
-        const heading = document.createElement("h2");
+        const heading =
+            document.createElement("h2");
 
-        heading.textContent = label;
+        heading.textContent =
+            label;
 
-        container.appendChild(heading);
+        container.appendChild(
+            heading
+        );
 
     }
 
@@ -723,7 +835,9 @@ async function displaySingleMovie(movie, label = "") {
 
     container.appendChild(card);
 
-    result.appendChild(container);
+    result.appendChild(
+        container
+    );
 
 }
 
@@ -732,21 +846,36 @@ async function displaySingleMovie(movie, label = "") {
 // COMPARE TWO MOVIES
 // =========================
 
-async function compareMovies(movie1, movie2) {
+async function compareMovies(
+    movie1,
+    movie2
+) {
 
-    setStatus("Comparing movies...");
+    setStatus(
+        "Comparing movies..."
+    );
+
     result.innerHTML = "";
 
 
     try {
 
-        const [firstMovie, secondMovie] = await Promise.all([
+        const [
+            firstMovie,
+            secondMovie
+        ] = await Promise.all([
+
             searchMovie(movie1),
+
             searchMovie(movie2)
+
         ]);
 
 
-        if (!firstMovie || !secondMovie) {
+        if (
+            !firstMovie ||
+            !secondMovie
+        ) {
 
             setStatus(
                 "I couldn't find one or both movies. Check the titles and try again."
@@ -761,18 +890,29 @@ async function compareMovies(movie1, movie2) {
         // PLATFORM FILTER
         // -------------------------
 
-        const selectedPlatforms = getSelectedPlatforms();
+        const selectedPlatforms =
+            getSelectedPlatforms();
 
-        if (selectedPlatforms.length > 0) {
+
+        if (
+            selectedPlatforms.length > 0
+        ) {
 
             const firstAvailable =
-                await movieMatchesStreamingFilter(firstMovie.id);
+                await movieMatchesStreamingFilter(
+                    firstMovie.id
+                );
 
             const secondAvailable =
-                await movieMatchesStreamingFilter(secondMovie.id);
+                await movieMatchesStreamingFilter(
+                    secondMovie.id
+                );
 
 
-            if (!firstAvailable || !secondAvailable) {
+            if (
+                !firstAvailable ||
+                !secondAvailable
+            ) {
 
                 setStatus(
                     "One or both movies aren't available on your selected platform(s)."
@@ -790,21 +930,29 @@ async function compareMovies(movie1, movie2) {
         // -------------------------
 
         const firstRating =
-            Number(firstMovie.vote_average || 0);
+            Number(
+                firstMovie.vote_average || 0
+            );
 
         const secondRating =
-            Number(secondMovie.vote_average || 0);
+            Number(
+                secondMovie.vote_average || 0
+            );
 
 
         let firstWinner = false;
         let secondWinner = false;
 
 
-        if (firstRating > secondRating) {
+        if (
+            firstRating > secondRating
+        ) {
 
             firstWinner = true;
 
-        } else if (secondRating > firstRating) {
+        } else if (
+            secondRating > firstRating
+        ) {
 
             secondWinner = true;
 
@@ -818,7 +966,8 @@ async function compareMovies(movie1, movie2) {
         const container =
             document.createElement("div");
 
-        container.className = "movie-container";
+        container.className =
+            "movie-container";
 
 
         // -------------------------
@@ -828,10 +977,14 @@ async function compareMovies(movie1, movie2) {
         const firstCard =
             await createMovieCard(
                 firstMovie,
-                { winner: firstWinner }
+                {
+                    winner: firstWinner
+                }
             );
 
-        container.appendChild(firstCard);
+        container.appendChild(
+            firstCard
+        );
 
 
         // -------------------------
@@ -841,12 +994,17 @@ async function compareMovies(movie1, movie2) {
         const vs =
             document.createElement("div");
 
-        vs.className = "comparison-result-vs";
+        vs.className =
+            "comparison-result-vs";
 
         vs.textContent =
-            firstRating === secondRating ? "TIE" : "VS";
+            firstRating === secondRating
+                ? "TIE"
+                : "VS";
 
-        container.appendChild(vs);
+        container.appendChild(
+            vs
+        );
 
 
         // -------------------------
@@ -856,23 +1014,33 @@ async function compareMovies(movie1, movie2) {
         const secondCard =
             await createMovieCard(
                 secondMovie,
-                { winner: secondWinner }
+                {
+                    winner: secondWinner
+                }
             );
 
-        container.appendChild(secondCard);
+        container.appendChild(
+            secondCard
+        );
 
 
         // -------------------------
         // DISPLAY
         // -------------------------
 
-        result.appendChild(container);
+        result.appendChild(
+            container
+        );
 
         setStatus("");
 
+
     } catch (error) {
 
-        console.error("Compare error:", error);
+        console.error(
+            "Compare error:",
+            error
+        );
 
         setStatus(
             "Something went wrong while comparing the movies."
@@ -887,175 +1055,236 @@ async function compareMovies(movie1, movie2) {
 // COMPARE BUTTON
 // =========================
 
-searchBtn.addEventListener("click", async function () {
+searchBtn.addEventListener(
+    "click",
+    async function () {
 
-    const movie1 =
-        document.getElementById("movie1").value.trim();
+        const movie1 =
+            document
+                .getElementById("movie1")
+                .value
+                .trim();
 
-    const movie2 =
-        document.getElementById("movie2").value.trim();
+        const movie2 =
+            document
+                .getElementById("movie2")
+                .value
+                .trim();
 
 
-    if (!movie1 || !movie2) {
+        if (
+            !movie1 ||
+            !movie2
+        ) {
 
-        setStatus(
-            "Enter two movies to compare."
+            setStatus(
+                "Enter two movies to compare."
+            );
+
+            return;
+
+        }
+
+
+        await compareMovies(
+            movie1,
+            movie2
         );
 
-        return;
-
     }
-
-
-    await compareMovies(movie1, movie2);
-
-});
+);
 
 
 // =========================
 // WATCH-OFF
 // =========================
 
-randomBattleBtn.addEventListener("click", async function () {
+randomBattleBtn.addEventListener(
+    "click",
+    async function () {
 
-    setStatus("Finding two movies...");
+        setStatus(
+            "Finding two movies..."
+        );
 
-    result.innerHTML = "";
-
-
-    try {
-
-        const firstMovie =
-            await getRandomMovie({
-                genre: genreSelect.value
-            });
+        result.innerHTML = "";
 
 
-        if (!firstMovie) {
+        try {
 
-            setStatus(
-                "I couldn't find a movie matching those filters."
-            );
-
-            return;
-
-        }
-
-
-        let secondMovie = null;
-
-        let attempts = 0;
-
-
-        while (!secondMovie && attempts < 10) {
-
-            const candidate =
+            const firstMovie =
                 await getRandomMovie({
-                    genre: genreSelect.value
+
+                    genre:
+                        genreSelect.value
+
                 });
 
 
-            if (
-                candidate &&
-                candidate.id !== firstMovie.id
-            ) {
+            if (!firstMovie) {
 
-                secondMovie = candidate;
+                setStatus(
+                    "I couldn't find a movie matching those filters."
+                );
+
+                return;
 
             }
 
-            attempts++;
 
-        }
+            let secondMovie = null;
+
+            let attempts = 0;
 
 
-        if (!secondMovie) {
+            while (
+                !secondMovie &&
+                attempts < 10
+            ) {
+
+                const candidate =
+                    await getRandomMovie({
+
+                        genre:
+                            genreSelect.value
+
+                    });
+
+
+                if (
+                    candidate &&
+                    candidate.id !== firstMovie.id
+                ) {
+
+                    secondMovie =
+                        candidate;
+
+                }
+
+
+                attempts++;
+
+            }
+
+
+            if (!secondMovie) {
+
+                setStatus(
+                    "I couldn't find two suitable movies. Try changing the filters."
+                );
+
+                return;
+
+            }
+
+
+            setStatus("");
+
+
+            const firstRating =
+                Number(
+                    firstMovie.vote_average || 0
+                );
+
+            const secondRating =
+                Number(
+                    secondMovie.vote_average || 0
+                );
+
+
+            let firstWinner = false;
+
+            let secondWinner = false;
+
+
+            if (
+                firstRating > secondRating
+            ) {
+
+                firstWinner = true;
+
+            } else if (
+                secondRating > firstRating
+            ) {
+
+                secondWinner = true;
+
+            }
+
+
+            const container =
+                document.createElement("div");
+
+            container.className =
+                "movie-container";
+
+
+            const firstCard =
+                await createMovieCard(
+                    firstMovie,
+                    {
+                        winner: firstWinner
+                    }
+                );
+
+
+            const secondCard =
+                await createMovieCard(
+                    secondMovie,
+                    {
+                        winner: secondWinner
+                    }
+                );
+
+
+            console.log(
+                "SECOND CARD CREATED"
+            );
+
+
+            container.appendChild(
+                firstCard
+            );
+
+
+            const vs =
+                document.createElement("div");
+
+            vs.className =
+                "comparison-result-vs";
+
+            vs.textContent =
+                firstRating === secondRating
+                    ? "TIE"
+                    : "VS";
+
+
+            container.appendChild(
+                vs
+            );
+
+            container.appendChild(
+                secondCard
+            );
+
+
+            result.appendChild(
+                container
+            );
+
+
+        } catch (error) {
+
+            console.error(error);
 
             setStatus(
-                "I couldn't find two suitable movies. Try changing the filters."
+                "Something went wrong while creating the Watch-Off."
             );
-
-            return;
 
         }
-
-
-        setStatus("");
-
-
-        const firstRating =
-            Number(firstMovie.vote_average || 0);
-
-        const secondRating =
-            Number(secondMovie.vote_average || 0);
-
-
-        let firstWinner = false;
-        let secondWinner = false;
-
-
-        if (firstRating > secondRating) {
-
-            firstWinner = true;
-
-        } else if (secondRating > firstRating) {
-
-            secondWinner = true;
-
-        }
-
-
-        const container =
-            document.createElement("div");
-
-        container.className =
-            "movie-container";
-
-
-        const firstCard =
-            await createMovieCard(
-                firstMovie,
-                { winner: firstWinner }
-            );
-
-        const secondCard =
-            await createMovieCard(
-                secondMovie,
-                { winner: secondWinner }
-            );
-console.log("SECOND CARD CREATED");
-
-        container.appendChild(firstCard);
-
-
-        const vs =
-            document.createElement("div");
-
-        vs.className =
-            "comparison-result-vs";
-
-        vs.textContent =
-            firstRating === secondRating ? "TIE" : "VS";
-
-
-        container.appendChild(vs);
-        container.appendChild(secondCard);
-
-
-        result.appendChild(container);
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        setStatus(
-            "Something went wrong while creating the Watch-Off."
-        );
 
     }
-
-});
+);
 
 
 // =========================
@@ -1064,6 +1293,7 @@ console.log("SECOND CARD CREATED");
 // =========================
 
 let watchNextMovies = [];
+
 let watchNextIndex = 0;
 
 
@@ -1073,39 +1303,63 @@ let watchNextIndex = 0;
 
 async function getWatchNextMovies() {
 
-    setStatus("Finding some movies for you...");
+    setStatus(
+        "Finding some movies for you..."
+    );
+
     result.innerHTML = "";
 
     watchNextMovies = [];
+
     watchNextIndex = 0;
 
-    const genre = genreSelect.value;
+
+    const genre =
+        genreSelect.value;
+
 
     try {
 
-        for (let i = 0; i < 5; i++) {
+        for (
+            let i = 0;
+            i < 5;
+            i++
+        ) {
 
-            const movie = await getRandomMovie({
-                genre: genre
-            });
+            const movie =
+                await getRandomMovie({
+                    genre: genre
+                });
+
 
             if (!movie) {
                 continue;
             }
 
+
             // Avoid showing the same movie twice
-            const alreadyAdded = watchNextMovies.some(
-                existingMovie => existingMovie.id === movie.id
-            );
+
+            const alreadyAdded =
+                watchNextMovies.some(
+                    existingMovie =>
+                        existingMovie.id === movie.id
+                );
+
 
             if (!alreadyAdded) {
-                watchNextMovies.push(movie);
+
+                watchNextMovies.push(
+                    movie
+                );
+
             }
 
         }
 
 
-        if (watchNextMovies.length === 0) {
+        if (
+            watchNextMovies.length === 0
+        ) {
 
             setStatus(
                 "I couldn't find any movies matching those filters."
@@ -1118,7 +1372,8 @@ async function getWatchNextMovies() {
 
         setStatus("");
 
-        displayWatchNextMovie();
+        await displayWatchNextMovie();
+
 
     } catch (error) {
 
@@ -1141,84 +1396,319 @@ async function displayWatchNextMovie() {
 
     result.innerHTML = "";
 
-    const container = document.createElement("div");
 
-    container.className = "watch-next-carousel";
+    const container =
+        document.createElement("div");
+
+    container.className =
+        "watch-next-carousel";
 
 
     // -------------------------
     // CURRENT MOVIE
     // -------------------------
 
-    const cardWrapper = document.createElement("div");
+    const cardWrapper =
+        document.createElement("div");
 
-    cardWrapper.className = "watch-next-card-wrapper";
+    cardWrapper.className =
+        "watch-next-card-wrapper";
 
 
-    const card = await createMovieCard(
-        watchNextMovies[watchNextIndex]
+    const card =
+        await createMovieCard(
+            watchNextMovies[
+                watchNextIndex
+            ]
+        );
+
+
+    cardWrapper.appendChild(
+        card
     );
 
-    cardWrapper.appendChild(card);
+    container.appendChild(
+        cardWrapper
+    );
 
-    container.appendChild(cardWrapper);
+
+    // =========================
+    // MOBILE SWIPE
+    // =========================
+
+    let startX = 0;
+
+    let startY = 0;
+
+    let isDragging = false;
 
 
     // -------------------------
-    // NEXT BUTTON
+    // TOUCH START
     // -------------------------
 
-    const nextButton = document.createElement("button");
+    cardWrapper.addEventListener(
+        "touchstart",
+        function (event) {
 
-    nextButton.className = "watch-next-cue";
+            if (
+                event.touches.length !== 1
+            ) {
 
-    nextButton.textContent = "Another movie →";
+                return;
+
+            }
 
 
-    nextButton.addEventListener("click", async function () {
+            startX =
+                event.touches[0].clientX;
 
-        watchNextIndex++;
+            startY =
+                event.touches[0].clientY;
 
-        if (watchNextIndex >= watchNextMovies.length) {
-            watchNextIndex = 0;
+            isDragging = true;
+
+
+            cardWrapper.classList.add(
+                "swiping"
+            );
+
+        },
+        {
+            passive: true
         }
-
-        await displayWatchNextMovie();
-
-    });
-
-
-    container.appendChild(nextButton);
+    );
 
 
     // -------------------------
+    // TOUCH END
+    // -------------------------
+
+    cardWrapper.addEventListener(
+        "touchend",
+        async function (event) {
+
+            if (!isDragging) {
+                return;
+            }
+
+
+            isDragging = false;
+
+
+            cardWrapper.classList.remove(
+                "swiping"
+            );
+
+
+            const endX =
+                event.changedTouches[0].clientX;
+
+            const endY =
+                event.changedTouches[0].clientY;
+
+
+            const differenceX =
+                endX - startX;
+
+            const differenceY =
+                endY - startY;
+
+
+            // Ignore vertical scrolling
+
+            if (
+                Math.abs(differenceY) >
+                Math.abs(differenceX)
+            ) {
+
+                return;
+
+            }
+
+
+            // Require a meaningful horizontal swipe
+
+            if (
+                Math.abs(differenceX) < 60
+            ) {
+
+                return;
+
+            }
+
+
+            // -------------------------
+            // SWIPE LEFT
+            // -------------------------
+
+            if (
+                differenceX < 0
+            ) {
+
+                cardWrapper.classList.add(
+                    "swipe-out-left"
+                );
+
+
+                await new Promise(
+                    resolve =>
+                        setTimeout(
+                            resolve,
+                            250
+                        )
+                );
+
+
+                watchNextIndex++;
+
+
+                if (
+                    watchNextIndex >=
+                    watchNextMovies.length
+                ) {
+
+                    watchNextIndex = 0;
+
+                }
+
+
+                await displayWatchNextMovie();
+
+            }
+
+
+            // -------------------------
+            // SWIPE RIGHT
+            // -------------------------
+
+            else {
+
+                cardWrapper.classList.add(
+                    "swipe-out-right"
+                );
+
+
+                await new Promise(
+                    resolve =>
+                        setTimeout(
+                            resolve,
+                            250
+                        )
+                );
+
+
+                watchNextIndex--;
+
+
+                if (
+                    watchNextIndex < 0
+                ) {
+
+                    watchNextIndex =
+                        watchNextMovies.length - 1;
+
+                }
+
+
+                await displayWatchNextMovie();
+
+            }
+
+        }
+    );
+
+
+    // =========================
+    // ANOTHER MOVIE BUTTON
+    // =========================
+
+    const nextButton =
+        document.createElement("button");
+
+    nextButton.className =
+        "watch-next-cue";
+
+    nextButton.textContent =
+        "Another movie →";
+
+
+    nextButton.addEventListener(
+        "click",
+        async function () {
+
+            watchNextIndex++;
+
+
+            if (
+                watchNextIndex >=
+                watchNextMovies.length
+            ) {
+
+                watchNextIndex = 0;
+
+            }
+
+
+            await displayWatchNextMovie();
+
+        }
+    );
+
+
+    container.appendChild(
+        nextButton
+    );
+
+
+    // =========================
     // POSITION DOTS
-    // -------------------------
+    // =========================
 
-    const dots = document.createElement("div");
+    const dots =
+        document.createElement("div");
 
-    dots.className = "watch-next-dots";
+    dots.className =
+        "watch-next-dots";
 
 
-    watchNextMovies.forEach((movie, index) => {
+    watchNextMovies.forEach(
+        function (movie, index) {
 
-        const dot = document.createElement("span");
+            const dot =
+                document.createElement("span");
 
-        dot.className = "watch-next-dot";
+            dot.className =
+                "watch-next-dot";
 
-        if (index === watchNextIndex) {
-            dot.classList.add("active");
+
+            if (
+                index === watchNextIndex
+            ) {
+
+                dot.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            dots.appendChild(
+                dot
+            );
+
         }
-
-        dots.appendChild(dot);
-
-    });
+    );
 
 
-    container.appendChild(dots);
+    container.appendChild(
+        dots
+    );
 
 
-    result.appendChild(container);
+    result.appendChild(
+        container
+    );
 
 }
 
@@ -1227,8 +1717,11 @@ async function displayWatchNextMovie() {
 // WATCH NEXT BUTTON
 // =========================
 
-randomMovieBtn.addEventListener("click", async function () {
+randomMovieBtn.addEventListener(
+    "click",
+    async function () {
 
-    await getWatchNextMovies();
+        await getWatchNextMovies();
 
-});
+    }
+);
