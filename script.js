@@ -36,9 +36,9 @@ const platformCheckboxes = document.querySelectorAll(
 
 async function tmdbFetch(endpoint) {
 
-    const response = await fetch(
-        `/api/tmdb?endpoint=${encodeURIComponent(endpoint)}`
-    );
+   const response = await fetch(
+    `/api/tmdb?endpoint=${encodeURIComponent(endpoint)}`
+);
 
     if (!response.ok) {
         throw new Error("TMDB request failed.");
@@ -1394,26 +1394,241 @@ async function getWatchNextMovies() {
 
 async function displayWatchNextMovie() {
 
-    result.innerHTML = "";
+    let container =
+        result.querySelector(".watch-next-carousel");
+
+    // =========================
+    // CREATE CAROUSEL
+    // =========================
+
+    if (!container) {
+
+        result.innerHTML = "";
+
+        container =
+            document.createElement("div");
+
+        container.className =
+            "watch-next-carousel";
+
+        const cardWrapper =
+            document.createElement("div");
+
+        cardWrapper.className =
+            "watch-next-card-wrapper";
+
+        container.appendChild(
+            cardWrapper
+        );
 
 
-    const container =
-        document.createElement("div");
+        // =========================
+        // MOBILE SWIPE
+        // =========================
 
-    container.className =
-        "watch-next-carousel";
+        let startX = 0;
+        let startY = 0;
+        let isDragging = false;
 
 
-    // -------------------------
-    // CURRENT MOVIE
-    // -------------------------
+        cardWrapper.addEventListener(
+            "touchstart",
+            function (event) {
+
+                if (
+                    event.touches.length !== 1
+                ) {
+                    return;
+                }
+
+                startX =
+                    event.touches[0].clientX;
+
+                startY =
+                    event.touches[0].clientY;
+
+                isDragging = true;
+
+                cardWrapper.classList.add(
+                    "swiping"
+                );
+
+            },
+            {
+                passive: true
+            }
+        );
+
+
+        cardWrapper.addEventListener(
+            "touchend",
+            async function (event) {
+
+                if (!isDragging) {
+                    return;
+                }
+
+                isDragging = false;
+
+                cardWrapper.classList.remove(
+                    "swiping"
+                );
+
+
+                const endX =
+                    event.changedTouches[0].clientX;
+
+                const endY =
+                    event.changedTouches[0].clientY;
+
+
+                const differenceX =
+                    endX - startX;
+
+                const differenceY =
+                    endY - startY;
+
+
+                // Ignore vertical scrolling
+
+                if (
+                    Math.abs(differenceY) >
+                    Math.abs(differenceX)
+                ) {
+                    return;
+                }
+
+
+                // Ignore small movements
+
+                if (
+                    Math.abs(differenceX) < 60
+                ) {
+                    return;
+                }
+
+
+                // Swipe left = next
+
+                if (differenceX < 0) {
+
+                    watchNextIndex++;
+
+                    if (
+                        watchNextIndex >=
+                        watchNextMovies.length
+                    ) {
+                        watchNextIndex = 0;
+                    }
+
+                    await updateWatchNextCard(
+                        cardWrapper,
+                        container,
+                        "left"
+                    );
+
+                }
+
+
+                // Swipe right = previous
+
+                else {
+
+                    watchNextIndex--;
+
+                    if (
+                        watchNextIndex < 0
+                    ) {
+                        watchNextIndex =
+                            watchNextMovies.length - 1;
+                    }
+
+                    await updateWatchNextCard(
+                        cardWrapper,
+                        container,
+                        "right"
+                    );
+
+                }
+
+            }
+        );
+
+
+        // =========================
+        // ANOTHER MOVIE BUTTON
+        // =========================
+
+        const nextButton =
+            document.createElement("button");
+
+        nextButton.className =
+            "watch-next-cue";
+
+        nextButton.textContent =
+            "Another movie →";
+
+
+        nextButton.addEventListener(
+            "click",
+            async function () {
+
+                watchNextIndex++;
+
+                if (
+                    watchNextIndex >=
+                    watchNextMovies.length
+                ) {
+                    watchNextIndex = 0;
+                }
+
+                await updateWatchNextCard(
+                    cardWrapper,
+                    container,
+                    "left"
+                );
+
+            }
+        );
+
+
+        container.appendChild(
+            nextButton
+        );
+
+
+        // =========================
+        // POSITION DOTS
+        // =========================
+
+        const dots =
+            document.createElement("div");
+
+        dots.className =
+            "watch-next-dots";
+
+        container.appendChild(
+            dots
+        );
+
+
+        result.appendChild(
+            container
+        );
+
+    }
+
+
+    // =========================
+    // DISPLAY CURRENT MOVIE
+    // =========================
 
     const cardWrapper =
-        document.createElement("div");
+        container.querySelector(
+            ".watch-next-card-wrapper"
+        );
 
-    cardWrapper.className =
-        "watch-next-card-wrapper";
-
+    cardWrapper.innerHTML = "";
 
     const card =
         await createMovieCard(
@@ -1422,254 +1637,108 @@ async function displayWatchNextMovie() {
             ]
         );
 
+    cardWrapper.appendChild(
+        card
+    );
+
+
+    // =========================
+    // UPDATE DOTS
+    // =========================
+
+    updateWatchNextDots(
+        container
+    );
+
+}
+
+
+// =========================
+// UPDATE WATCH NEXT CARD
+// =========================
+
+async function updateWatchNextCard(
+    cardWrapper,
+    container,
+    direction
+) {
+
+    cardWrapper.style.pointerEvents =
+        "none";
+
+
+    // Animate current card away
+
+    cardWrapper.classList.add(
+        direction === "left"
+            ? "swipe-out-left"
+            : "swipe-out-right"
+    );
+
+
+    await new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                250
+            )
+    );
+
+
+    cardWrapper.classList.remove(
+        "swipe-out-left",
+        "swipe-out-right"
+    );
+
+
+    // Replace only the card
+
+    cardWrapper.innerHTML = "";
+
+    const card =
+        await createMovieCard(
+            watchNextMovies[
+                watchNextIndex
+            ]
+        );
 
     cardWrapper.appendChild(
         card
     );
 
-    container.appendChild(
-        cardWrapper
+
+    // Update dots
+
+    updateWatchNextDots(
+        container
     );
 
 
-    // =========================
-    // MOBILE SWIPE
-    // =========================
+    cardWrapper.style.pointerEvents =
+        "";
 
-    let startX = 0;
+}
 
-    let startY = 0;
 
-    let isDragging = false;
+// =========================
+// UPDATE WATCH NEXT DOTS
+// =========================
 
-
-    // -------------------------
-    // TOUCH START
-    // -------------------------
-
-    cardWrapper.addEventListener(
-        "touchstart",
-        function (event) {
-
-            if (
-                event.touches.length !== 1
-            ) {
-
-                return;
-
-            }
-
-
-            startX =
-                event.touches[0].clientX;
-
-            startY =
-                event.touches[0].clientY;
-
-            isDragging = true;
-
-
-            cardWrapper.classList.add(
-                "swiping"
-            );
-
-        },
-        {
-            passive: true
-        }
-    );
-
-
-    // -------------------------
-    // TOUCH END
-    // -------------------------
-
-    cardWrapper.addEventListener(
-        "touchend",
-        async function (event) {
-
-            if (!isDragging) {
-                return;
-            }
-
-
-            isDragging = false;
-
-
-            cardWrapper.classList.remove(
-                "swiping"
-            );
-
-
-            const endX =
-                event.changedTouches[0].clientX;
-
-            const endY =
-                event.changedTouches[0].clientY;
-
-
-            const differenceX =
-                endX - startX;
-
-            const differenceY =
-                endY - startY;
-
-
-            // Ignore vertical scrolling
-
-            if (
-                Math.abs(differenceY) >
-                Math.abs(differenceX)
-            ) {
-
-                return;
-
-            }
-
-
-            // Require a meaningful horizontal swipe
-
-            if (
-                Math.abs(differenceX) < 60
-            ) {
-
-                return;
-
-            }
-
-
-            // -------------------------
-            // SWIPE LEFT
-            // -------------------------
-
-            if (
-                differenceX < 0
-            ) {
-
-                cardWrapper.classList.add(
-                    "swipe-out-left"
-                );
-
-
-                await new Promise(
-                    resolve =>
-                        setTimeout(
-                            resolve,
-                            250
-                        )
-                );
-
-
-                watchNextIndex++;
-
-
-                if (
-                    watchNextIndex >=
-                    watchNextMovies.length
-                ) {
-
-                    watchNextIndex = 0;
-
-                }
-
-
-                await displayWatchNextMovie();
-
-            }
-
-
-            // -------------------------
-            // SWIPE RIGHT
-            // -------------------------
-
-            else {
-
-                cardWrapper.classList.add(
-                    "swipe-out-right"
-                );
-
-
-                await new Promise(
-                    resolve =>
-                        setTimeout(
-                            resolve,
-                            250
-                        )
-                );
-
-
-                watchNextIndex--;
-
-
-                if (
-                    watchNextIndex < 0
-                ) {
-
-                    watchNextIndex =
-                        watchNextMovies.length - 1;
-
-                }
-
-
-                await displayWatchNextMovie();
-
-            }
-
-        }
-    );
-
-
-    // =========================
-    // ANOTHER MOVIE BUTTON
-    // =========================
-
-    const nextButton =
-        document.createElement("button");
-
-    nextButton.className =
-        "watch-next-cue";
-
-    nextButton.textContent =
-        "Another movie →";
-
-
-    nextButton.addEventListener(
-        "click",
-        async function () {
-
-            watchNextIndex++;
-
-
-            if (
-                watchNextIndex >=
-                watchNextMovies.length
-            ) {
-
-                watchNextIndex = 0;
-
-            }
-
-
-            await displayWatchNextMovie();
-
-        }
-    );
-
-
-    container.appendChild(
-        nextButton
-    );
-
-
-    // =========================
-    // POSITION DOTS
-    // =========================
+function updateWatchNextDots(
+    container
+) {
 
     const dots =
-        document.createElement("div");
+        container.querySelector(
+            ".watch-next-dots"
+        );
 
-    dots.className =
-        "watch-next-dots";
+    if (!dots) {
+        return;
+    }
+
+
+    dots.innerHTML = "";
 
 
     watchNextMovies.forEach(
@@ -1685,11 +1754,9 @@ async function displayWatchNextMovie() {
             if (
                 index === watchNextIndex
             ) {
-
                 dot.classList.add(
                     "active"
                 );
-
             }
 
 
@@ -1698,16 +1765,6 @@ async function displayWatchNextMovie() {
             );
 
         }
-    );
-
-
-    container.appendChild(
-        dots
-    );
-
-
-    result.appendChild(
-        container
     );
 
 }
