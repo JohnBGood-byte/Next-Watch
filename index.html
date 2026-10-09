@@ -23,7 +23,8 @@
          HEADER
          ========================= -->
 
-    <header class="site-header">
+
+<header class="site-header">
 
         <div class="brand">
             <span class="brand-icon">▶</span>
@@ -33,6 +34,14 @@
         <p class="tagline">
             Find your next favourite movie.
         </p>
+
+        <button
+            type="button"
+            id="viewWatchlistBtn"
+            class="view-watchlist-btn"
+        >
+            Watchlist <span id="watchlistCount">0</span>
+        </button>
 
     </header>
 
@@ -373,7 +382,16 @@
 
 
     <div id="result"></div>
+<div id="watchlistPanel" class="watchlist-panel" hidden>
+    <div class="watchlist-header">
+        <h2>Watchlist</h2>
+        <button type="button" id="closeWatchlistBtn" class="watchlist-close-btn">
+            Close
+        </button>
+    </div>
 
+    <div id="watchlistItems" class="watchlist-items"></div>
+</div>
 
 </div>
 

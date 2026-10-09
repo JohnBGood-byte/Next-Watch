@@ -28,8 +28,173 @@ const streamingDropdownMenu = document.getElementById(
 const platformCheckboxes = document.querySelectorAll(
     ".platform-checkbox"
 );
+const viewWatchlistBtn = document.getElementById("viewWatchlistBtn");
+const watchlistCount = document.getElementById("watchlistCount");
+const watchlistPanel = document.getElementById("watchlistPanel");
+const watchlistItems = document.getElementById("watchlistItems");
+const closeWatchlistBtn = document.getElementById("closeWatchlistBtn");
+
+function updateWatchlistCount() {
+    if (watchlistCount) {
+        watchlistCount.textContent = getWatchlist().length;
+    }
+}
+
+function renderWatchlist() {
+    if (!watchlistItems) return;
+
+    const watchlist = getWatchlist();
+    watchlistItems.innerHTML = "";
+
+    if (watchlist.length === 0) {
+        const emptyMessage = document.createElement("p");
+        emptyMessage.textContent = "Your watchlist is empty. Add a movie to get started.";
+        emptyMessage.className = "watchlist-empty";
+        watchlistItems.appendChild(emptyMessage);
+        updateWatchlistCount();
+        return;
+    }
+
+    watchlist.forEach(movie => {
+        const item = document.createElement("div");
+        item.className = "watchlist-item";
+
+        if (movie.watched) {
+            item.classList.add("is-watched");
+        }
+
+        if (movie.poster_path) {
+            const poster = document.createElement("img");
+            poster.src = `https://image.tmdb.org/t/p/w185${movie.poster_path}`;
+            poster.alt = `${movie.title} poster`;
+            poster.className = "watchlist-poster";
+            item.appendChild(poster);
+        }
+
+        const details = document.createElement("div");
+        details.className = "watchlist-item-details";
+
+        const title = document.createElement("h3");
+        title.textContent = movie.title;
+        details.appendChild(title);
+
+        const type = document.createElement("p");
+        type.textContent = movie.media_type === "tv" ? "TV series" : "Movie";
+        details.appendChild(type);
+
+        const actions = document.createElement("div");
+        actions.className = "watchlist-item-actions";
+
+        const watchedBtn = document.createElement("button");
+        watchedBtn.type = "button";
+        watchedBtn.textContent = movie.watched ? "Mark unwatched" : "Mark watched";
+        watchedBtn.addEventListener("click", () => {
+            const updated = getWatchlist().map(entry =>
+                String(entry.id) === String(movie.id)
+                    ? { ...entry, watched: !entry.watched }
+                    : entry
+            );
+
+            saveWatchlist(updated);
+            renderWatchlist();
+        });
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.textContent = "Remove";
+        removeBtn.addEventListener("click", () => {
+            const updated = getWatchlist().filter(
+                entry => String(entry.id) !== String(movie.id)
+            );
+
+            saveWatchlist(updated);
+            renderWatchlist();
+        });
+
+        actions.append(watchedBtn, removeBtn);
+        details.appendChild(actions);
+        item.appendChild(details);
+        watchlistItems.appendChild(item);
+    });
+
+    updateWatchlistCount();
+}
+
+if (viewWatchlistBtn && watchlistPanel) {
+    viewWatchlistBtn.addEventListener("click", () => {
+        const opening = watchlistPanel.hidden;
+        watchlistPanel.hidden = !opening;
+
+        if (opening) {
+            renderWatchlist();
+            watchlistPanel.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    });
+}
+
+if (closeWatchlistBtn && watchlistPanel) {
+    closeWatchlistBtn.addEventListener("click", () => {
+        watchlistPanel.hidden = true;
+    });
+}
 
 
+ // =========================
+ // WATCHLIST STORAGE
+ // =========================
+
+const WATCHLIST_KEY = "nextWatch_watchlist";
+
+function getWatchlist() {
+    try {
+        return JSON.parse(
+            localStorage.getItem(WATCHLIST_KEY) || "[]"
+        );
+    } catch (error) {
+        console.error("Could not load watchlist:", error);
+        return [];
+    }
+}
+
+function saveWatchlist(watchlist) {
+    localStorage.setItem(
+        WATCHLIST_KEY,
+        JSON.stringify(watchlist)
+    );
+}
+
+function isInWatchlist(movieId) {
+    return getWatchlist().some(
+        item => String(item.id) === String(movieId)
+    );
+}
+
+function addToWatchlist(movie) {
+    const watchlist = getWatchlist();
+
+    if (watchlist.some(
+        item => String(item.id) === String(movie.id)
+    )) {
+        return false;
+    }
+
+    watchlist.push({
+        id: movie.id,
+        title: movie.title || movie.name || "Untitled",
+        poster_path: movie.poster_path || null,
+        media_type: movie.media_type ||
+            (movie.name ? "tv" : "movie"),
+        release_date: movie.release_date ||
+            movie.first_air_date || "",
+        watched: false
+    });
+
+    saveWatchlist(watchlist);
+    return true;
+}updateWatchlistCount();
 // =========================
 // TMDB API
 // =========================
@@ -792,6 +957,38 @@ async function createMovieCard(
     }
 
 
+    // -------------------------
+    // WATCHLIST BUTTON
+    // -------------------------
+
+    const watchlistButton =
+        document.createElement("button");
+
+    watchlistButton.className =
+        "watchlist-button";
+
+    function updateWatchlistButton() {
+        const added = isInWatchlist(movie.id);
+
+        watchlistButton.textContent = added
+            ? "Added to Watchlist ✓"
+            : "＋ Add to Watchlist";
+
+        watchlistButton.disabled = added;
+        watchlistButton.classList.toggle("is-added", added);
+    }
+
+    updateWatchlistButton();
+
+    watchlistButton.addEventListener("click", () => {
+        const added = addToWatchlist(movie);
+
+        if (added) {
+            updateWatchlistButton();
+        }
+    });
+
+    card.appendChild(watchlistButton);
     return card;
 
 }
