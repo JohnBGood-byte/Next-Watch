@@ -925,16 +925,31 @@ async function createMovieCard(
     // STREAMING
     // -------------------------
 
-    const providers =
-        await getStreamingProviders(
-            movie.id
-        );
+    
+    // Add streaming section immediately
+    const streamingSection =
+        document.createElement("div");
 
-    card.appendChild(
-        createStreamingSection(
-            providers
-        )
-    );
+    streamingSection.className =
+        "streaming-section";
+
+    streamingSection.textContent =
+        "Loading streaming options...";
+
+    card.appendChild(streamingSection);
+
+    // Load streaming options in the background
+    getStreamingProviders(movie.id)
+        .then(providers => {
+            streamingSection.replaceWith(
+                createStreamingSection(providers)
+            );
+        })
+        .catch(() => {
+            streamingSection.textContent =
+                "Streaming information unavailable.";
+        });
+
 
 
     // -------------------------
@@ -1854,69 +1869,68 @@ async function displayWatchNextMovie() {
 // UPDATE WATCH NEXT CARD
 // =========================
 
+
 async function updateWatchNextCard(
     cardWrapper,
     container,
     direction
 ) {
 
-    cardWrapper.style.pointerEvents =
-        "none";
+    // Save the current page position
+    const savedScrollY = window.scrollY;
 
+    cardWrapper.style.pointerEvents = "none";
 
-    // Animate current card away
+    try {
 
-    cardWrapper.classList.add(
-        direction === "left"
-            ? "swipe-out-left"
-            : "swipe-out-right"
-    );
-
-
-    await new Promise(
-        resolve =>
-            setTimeout(
-                resolve,
-                250
-            )
-    );
-
-
-    cardWrapper.classList.remove(
-        "swipe-out-left",
-        "swipe-out-right"
-    );
-
-
-    // Replace only the card
-
-    cardWrapper.innerHTML = "";
-
-    const card =
-        await createMovieCard(
-            watchNextMovies[
-                watchNextIndex
-            ]
+        // Animate current card away
+        cardWrapper.classList.add(
+            direction === "left"
+                ? "swipe-out-left"
+                : "swipe-out-right"
         );
 
-    cardWrapper.appendChild(
-        card
-    );
+        await new Promise(
+            resolve => setTimeout(resolve, 250)
+        );
 
+        cardWrapper.classList.remove(
+            "swipe-out-left",
+            "swipe-out-right"
+        );
 
-    // Update dots
+        // Replace only the movie card
+        cardWrapper.innerHTML = "";
 
-    updateWatchNextDots(
-        container
-    );
+        const card = await createMovieCard(
+            watchNextMovies[watchNextIndex]
+        );
 
+      cardWrapper.appendChild(card);
 
-    cardWrapper.style.pointerEvents =
-        "";
+// Animate the incoming movie
+cardWrapper.classList.add(
+    direction === "left"
+        ? "swipe-in-left"
+        : "swipe-in-right"
+);
+
+// Update position dots
+updateWatchNextDots(container);
+
+    } finally {
+
+        cardWrapper.style.pointerEvents = "";
+
+        // Restore the original scroll position
+        window.scrollTo(0, savedScrollY);
+
+        requestAnimationFrame(() => {
+            window.scrollTo(0, savedScrollY);
+        });
+    }
 
 }
-
-
 // =========================
 // UPDATE WATCH NEXT DOTS
 // =========================

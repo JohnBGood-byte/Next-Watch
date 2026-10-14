@@ -623,6 +623,37 @@ body {
     }
 }
 
+/* Incoming movie slides into place */
+.watch-next-card-wrapper.swipe-in-left {
+    animation: swipeInFromRight 0.25s ease both;
+}
+
+.watch-next-card-wrapper.swipe-in-right {
+    animation: swipeInFromLeft 0.25s ease both;
+}
+
+@keyframes swipeInFromRight {
+    from {
+        transform: translateX(35%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes swipeInFromLeft {
+    from {
+        transform: translateX(-35%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
 
 .watch-next-cue {
     margin-top: 13px;
